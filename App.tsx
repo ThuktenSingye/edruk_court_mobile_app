@@ -7,14 +7,14 @@
 
 import React from 'react';
 import {ScrollView, Text} from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 
 function App(): React.JSX.Element {
   return (
     <SafeAreaProvider>
-      <ScrollView>
+      <SafeAreaView>
         <Text>Edruk Court</Text>
-      </ScrollView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
