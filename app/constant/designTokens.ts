@@ -25,10 +25,12 @@ export const SHADOWS = {
 };
 
 export const FONTS = {
-  regular: 'LoraRegular',
-  medium: 'LoraMedium',
-  semiBold: 'LoraSemiBold',
-  bold: 'LoraBold',
+  light: 'Roboto-Light',
+  italic: 'Roboto-Italic',
+  regular: 'Roboto-Regular',
+  medium: 'Roboto-Medium',
+  semiBold: 'Roboto-SemiBold',
+  bold: 'Roboto-Bold',
 };
 
 export const COLORS = {
