@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, FlatList, ListRenderItem} from 'react-native';
 import {Card, Button} from '@rneui/themed';
-import DocumentPicker from 'react-native-document-picker';
+import DocumentPicker from '@react-native-documents/picker';
 import Toast from 'react-native-toast-message';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';

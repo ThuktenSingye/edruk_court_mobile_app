@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import {Card, Text, Input, Button, Icon} from '@rneui/themed';
+import {Card, Text, Input, Button} from '@rneui/themed';
 import Toast from 'react-native-toast-message';
-import DocumentPicker from 'react-native-document-picker';
+import DocumentPicker from '@react-native-documents/picker';
 
 import MainLayout from '../../components/common/MainLayout';
 import {COLORS, FONTS} from '../../constant/designTokens';
