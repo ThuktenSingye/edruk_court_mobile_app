@@ -1,5 +1,11 @@
-import React from 'react';
-import {ScrollView, StyleSheet, View, TouchableOpacity} from 'react-native';
+import React, {useEffect} from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import {Card, Text, Button, Icon} from '@rneui/themed';
 import {COLORS, FONTS} from '../../constant/designTokens';
 import MainLayout from '../../components/common/MainLayout';
@@ -9,7 +15,10 @@ import {TabParamList} from '../../components/common/TabNavigator';
 import {CompositeNavigationProp} from '@react-navigation/native';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {MainStackParamList} from '../../types/navigation';
-import FileCaseIcon from '../../assets/icons/Cases/FileCaseIcon';
+// import FileCaseIcon from '../../assets/icons/Cases/FileCaseIcon';
+import {getToken} from '../../utils/token.ts';
+import useUserStore from '../../store/useUserStore.ts';
+import {User} from '../../types/user.ts';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, 'Home'>,
@@ -18,6 +27,21 @@ type HomeScreenNavigationProp = CompositeNavigationProp<
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const [token, setToken] = React.useState<string | null>(null);
+
+  const user: User | null = useUserStore(state => state.user);
+
+  useEffect(() => {
+    async function loadToken() {
+      const storedToken = await getToken();
+      if (!storedToken) {
+        Alert.alert('Authentication', 'No token found, please login again.');
+        navigation.navigate('Login');
+      }
+      setToken(storedToken);
+    }
+    loadToken();
+  }, [navigation, token]);
 
   return (
     <MainLayout>
@@ -64,7 +88,7 @@ export default function HomeScreen() {
             <Text style={styles.caseId}>Case ID</Text>
           </View>
           <Text style={styles.cardDesc}>
-            This is caser slnfsdf fsdofnsd ofsd dsf dfs fdsfds fdds . .
+            {`This is token ${token} with user ${user?.profile?.first_name}`}
           </Text>
 
           <View style={styles.cardFooter}>

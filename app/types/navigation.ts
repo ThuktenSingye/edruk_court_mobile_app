@@ -5,6 +5,7 @@ export type MainStackParamList = {
   DefendentInfo: undefined;
   CaseProceedingDetail: {title: string};
   FileCase: undefined;
+  Login: undefined;
 };
 
 export type TabParamList = {
