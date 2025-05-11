@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
-import {COLORS, SIZES} from '../../constant/designTokens';
+import {COLORS} from '../../constant/designTokens';
 
 // Custom SVG icons
 import HomeIcon from '../../assets/icons/BottomTabBar/HomeIcon';

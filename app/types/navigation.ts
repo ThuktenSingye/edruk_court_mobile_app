@@ -7,6 +7,8 @@ export type MainStackParamList = {
   FileCase: undefined;
   Login: undefined;
   Signup: undefined;
+  Home: undefined;
+  CaseDetails: {caseId: number};
 };
 
 export type TabParamList = {
@@ -14,7 +16,7 @@ export type TabParamList = {
   Proceeding: undefined;
   Schedule: undefined;
   Profile: undefined;
-  Notification: undefined; // ✅ Needed for bell navigation
+  Notification: undefined;
 };
 
 export type RootStackParamList = {
@@ -24,7 +26,8 @@ export type RootStackParamList = {
 
 export type CaseStackParamList = {
   CaseMain: undefined;
+  CaseDetail: {caseId: string};
   DefendentInfo: undefined;
   CaseProceeding: undefined;
-  FileCase: undefined; // ✅ Required for nested Case navigation
+  FileCase: undefined;
 };
