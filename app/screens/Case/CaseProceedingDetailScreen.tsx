@@ -1,19 +1,298 @@
-import React from 'react';
-import {View, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Linking,
+} from 'react-native';
 import {Card, Text, Button, Icon} from '@rneui/themed';
 import MainLayout from '../../components/common/MainLayout';
 import {COLORS, FONTS} from '../../constant/designTokens';
-import UploadDocumentCard from '../../components/common/UploadDocumentCard';
 import {useNavigation} from '@react-navigation/native';
+import {pick, types} from '@react-native-documents/picker';
+import {useUploadHearingDocument} from '../../hooks/useUploadHearingDocuments';
+import {useHearingDocuments} from '../../hooks/useGetHearingDocuments';
+import {getToken} from '../../utils/token';
+
+interface FileDoc {
+  uri: string;
+  name: string;
+  type: string;
+  document_name?: string;
+  fileName?: string;
+  document?: {
+    name: string;
+    filename: string;
+    url: string;
+    content_type: string;
+    byte_size: number;
+  };
+  url?: string;
+  document_status?: string;
+  verified_at?: string | null;
+  created_at?: string;
+}
 
 export default function CaseProceedingDetailScreen({route}: any) {
-  const {title} = route.params;
+  const {title, hearing, caseId} = route.params;
   const navigation = useNavigation();
+  const [documents, setDocuments] = useState<FileDoc[]>([]);
+  const {mutate: uploadDocument, isPending} = useUploadHearingDocument();
+
+  const {data: hearingDocuments, refetch} = useHearingDocuments(
+    caseId,
+    hearing.id,
+  );
+
+  useEffect(() => {
+    console.log('Hearing Documents:', hearingDocuments);
+    console.log('Local Documents:', documents);
+  }, [hearingDocuments, documents]);
+
+  const handleFilePick = async () => {
+    try {
+      const result = await pick({
+        type: [types.pdf], // Only PDF files allowed
+        allowMultiSelection: true, // Allow multiple files
+        mode: 'open',
+      });
+
+      // Format files for upload
+      const files = Array.isArray(result) ? result : [result];
+      const formattedFiles = files.map(file => ({
+        uri: file.uri || '',
+        name: file.name || '',
+        type: file.type || 'application/pdf',
+      }));
+
+      // Update state with selected files
+      setDocuments(prevDocuments => [...prevDocuments, ...formattedFiles]);
+    } catch (err) {
+      console.error('Document Picker Error:', err);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    try {
+      const result = await pick({
+        type: [types.pdf],
+        allowMultiSelection: true,
+        mode: 'open',
+      });
+
+      // Ensure result is an array of files
+      const files = Array.isArray(result) ? result : [result];
+      console.log('Selected Files:', files);
+
+      // Format the files
+      const formattedFiles: FileDoc[] = files.map(file => ({
+        uri: file.uri || '',
+        name: file.name || '',
+        type: file.type || 'application/pdf',
+      }));
+
+      // Upload the newly selected documents
+      uploadDocument(
+        {
+          caseId,
+          hearingId: hearing.id,
+          file: formattedFiles,
+        },
+        {
+          onSuccess: response => {
+            console.log('Upload Response:', response);
+            Alert.alert('Success', 'Documents uploaded successfully');
+            if (response?.data) {
+              const newDocs = Array.isArray(response.data)
+                ? response.data
+                : [response.data];
+              // Clear the local documents state after successful upload
+              setDocuments([]);
+              // Let the refetch handle updating the documents list
+              refetch();
+            }
+          },
+          onError: (err: any) => {
+            console.error('Upload Error:', err);
+            Alert.alert('Error', err?.message || 'Upload failed');
+          },
+        },
+      );
+    } catch (err: any) {
+      console.error('Document Picker Error:', err);
+    }
+  };
+
+  const handleDocumentPress = async (doc: any) => {
+    try {
+      console.log('Full Document Object:', JSON.stringify(doc, null, 2));
+
+      const documentUrl =
+        doc.document?.url || doc.url || doc.document_url || doc.uri;
+      console.log('Attempting to open URL:', documentUrl);
+
+      if (!documentUrl) {
+        console.log('Document structure:', {
+          hasDocument: !!doc.document,
+          documentKeys: doc.document ? Object.keys(doc.document) : [],
+          docKeys: Object.keys(doc),
+        });
+        Alert.alert('Error', 'Document URL not found');
+        return;
+      }
+
+      const canOpen = await Linking.canOpenURL(documentUrl);
+      console.log('Can open URL:', canOpen);
+
+      if (canOpen) {
+        try {
+          await Linking.openURL(documentUrl);
+        } catch (openError) {
+          console.error('Error opening URL:', openError);
+          Alert.alert('Error', 'Failed to open document. Please try again.');
+        }
+      } else {
+        console.log('URL cannot be opened:', documentUrl);
+        Alert.alert(
+          'Error',
+          'Cannot open this document. The URL may be invalid or inaccessible.',
+        );
+      }
+    } catch (error) {
+      console.error('Error in handleDocumentPress:', error);
+      Alert.alert('Error', 'Failed to process document');
+    }
+  };
+
+  const handleSignAll = async () => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        Alert.alert('Error', 'Authentication token not found');
+        return;
+      }
+
+      // Get document IDs from both hearingDocuments and local documents
+      const documentIds = [
+        ...(hearingDocuments?.map((doc: any) => doc.id) || []),
+        ...(documents.map((doc: any) => doc.id) || []),
+      ].filter(Boolean);
+
+      console.log('Document IDs to sign:', documentIds);
+
+      if (documentIds.length === 0) {
+        Alert.alert('Error', 'No documents available to sign');
+        return;
+      }
+
+      // Sign documents one by one
+      let successCount = 0;
+      let failureCount = 0;
+      let failedDocIds: number[] = [];
+
+      // Helper function to wait between requests
+      const wait = (ms: number) =>
+        new Promise(resolve => setTimeout(resolve, ms));
+
+      // Helper function to attempt signing with retries
+      const attemptSigning = async (docId: number, retries = 2) => {
+        for (let attempt = 0; attempt <= retries; attempt++) {
+          try {
+            console.log(
+              `Attempting to sign document ${docId} (attempt ${attempt + 1}/${
+                retries + 1
+              })...`,
+            );
+
+            const response = await fetch(
+              `http://10.2.5.80:3001/api/v1/user/cases/${caseId}/hearings/${hearing.id}/documents/${docId}/sign`,
+              {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                  Accept: 'application/json',
+                },
+              },
+            );
+
+            const data = await response.json();
+            console.log(`Response for document ${docId}:`, {
+              status: response.status,
+              ok: response.ok,
+              data: data,
+              attempt: attempt + 1,
+            });
+
+            if (response.ok) {
+              return true;
+            }
+
+            // If this wasn't the last attempt, wait before retrying
+            if (attempt < retries) {
+              console.log(`Retrying document ${docId} after 2 seconds...`);
+              await wait(2000);
+            }
+          } catch (error) {
+            console.error(
+              `Error signing document ${docId} (attempt ${attempt + 1}):`,
+              error,
+            );
+            if (attempt < retries) {
+              await wait(2000);
+            }
+          }
+        }
+        return false;
+      };
+
+      for (const docId of documentIds) {
+        const success = await attemptSigning(docId);
+
+        if (success) {
+          successCount++;
+          console.log(`Successfully signed document ${docId}`);
+        } else {
+          failureCount++;
+          failedDocIds.push(docId);
+          console.error(`Failed to sign document ${docId} after all retries`);
+        }
+
+        // Wait for 1 second before processing the next document
+        await wait(1000);
+      }
+
+      // Show appropriate message based on results
+      if (successCount > 0 && failureCount === 0) {
+        Alert.alert('Success', 'All documents have been signed successfully');
+        refetch(); // Refresh the documents list
+      } else if (successCount > 0 && failureCount > 0) {
+        Alert.alert(
+          'Partial Success',
+          `${successCount} document(s) signed successfully.\n\nFailed to sign document(s) with ID(s): ${failedDocIds.join(
+            ', ',
+          )}.\n\nPlease try signing the failed documents individually.`,
+        );
+        refetch(); // Refresh the documents list
+      } else {
+        Alert.alert('Error', 'Failed to sign any documents. Please try again.');
+      }
+    } catch (error: any) {
+      console.error('Sign All Error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
+      Alert.alert('Error', 'Failed to sign documents. Please try again.');
+    }
+  };
 
   return (
     <MainLayout>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Back Button */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}>
@@ -25,72 +304,180 @@ export default function CaseProceedingDetailScreen({route}: any) {
           />
         </TouchableOpacity>
 
-        {/* Title */}
         <Text style={styles.heading}>{title}</Text>
 
-        {/* Main Detail Card */}
-        <Card containerStyle={styles.card}>
-          <View style={styles.rowBetween}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.caseId}>Case ID</Text>
-          </View>
+        <View style={styles.contentWrapper}>
+          {/* Hearing Details Card */}
+          <Card containerStyle={styles.card}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.title}>{hearing.hearing_type}</Text>
+              <Text style={styles.caseId}>Case ID: {hearing.case_number}</Text>
+            </View>
 
-          <Text style={styles.label}>Short Description</Text>
+            <Text style={styles.label}>Short Description</Text>
+            <Text style={styles.detail}>{hearing.summary}</Text>
 
-          <Text style={styles.subHeading}>Date & Time:</Text>
-          <Text style={styles.detail}>10:30 AM, 20th Dec 2024</Text>
+            <Text style={styles.subHeading}>Date & Time:</Text>
+            {hearing.schedules.map((schedule: any) => (
+              <Text key={schedule.id} style={styles.detail}>
+                {schedule.scheduled_date} - {schedule.schedule_status}
+              </Text>
+            ))}
 
-          <Text style={styles.subHeading}>Status:</Text>
-          <Text style={styles.detail}>Pending</Text>
+            <Text style={styles.subHeading}>Status:</Text>
+            <Text style={styles.detail}>{hearing.hearing_status}</Text>
+          </Card>
+        </View>
 
-          {/* Upload Section */}
-          <UploadDocumentCard
-            onPress={() => console.log('Upload Document Pressed')}
-          />
-
-          {/* Document List Section */}
-          <Text style={styles.subHeading}>List of Document</Text>
-          {['FileName.pdf', 'FileName.pdf'].map((file, index) => (
-            <Card key={index} containerStyle={styles.docCard}>
-              <View style={styles.rowBetween}>
-                <View>
-                  <Text style={styles.fileName}>{file}</Text>
-                  <Text style={styles.fileMeta}>10:30 AM, 20th Dec 2024</Text>
-                </View>
-
-                <View style={styles.actionRow}>
-                  <Button
-                    title="Replace"
-                    buttonStyle={styles.actionButton}
-                    titleStyle={styles.actionTitle}
-                  />
-                  <Button
-                    title="Delete"
-                    buttonStyle={[styles.actionButton, {marginLeft: 6}]}
-                    titleStyle={styles.actionTitle}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.viewMoreRow}>
-                <Text style={styles.viewMoreText}>View More</Text>
-                <Icon
-                  name="eye"
-                  type="ionicon"
-                  size={16}
-                  color={COLORS.primary}
-                />
-              </View>
+        {/* Upload Card */}
+        {hearing.hearing_type !== 'Miscellaneous' && (
+          <>
+            <Card containerStyle={styles.uploadCard}>
+              <Text style={styles.uploadHeading}>Upload Documents</Text>
+              <Button
+                title={isPending ? 'Uploading...' : 'Select & Upload PDFs'}
+                onPress={handleFileUpload}
+                buttonStyle={styles.uploadButton}
+                disabled={isPending}
+              />
             </Card>
-          ))}
-        </Card>
 
-        <Button
-          title="View All Case Proceeding"
-          buttonStyle={styles.footerButton}
-          titleStyle={{color: '#fff', fontFamily: FONTS.medium}}
-          onPress={() => navigation.goBack()}
-        />
+            {/* Documents List Card */}
+            {(hearingDocuments?.length > 0 || documents.length > 0) && (
+              <Card containerStyle={styles.documentsCard}>
+                <View style={styles.documentsHeader}>
+                  <Text style={styles.uploadHeading}>Documents</Text>
+                  <Button
+                    title="Sign All"
+                    onPress={handleSignAll}
+                    buttonStyle={styles.signAllButton}
+                    titleStyle={styles.signAllButtonText}
+                  />
+                </View>
+                <View style={styles.uploadedList}>
+                  {/* Show existing documents */}
+                  {hearingDocuments?.map((doc: any, index: number) => (
+                    <TouchableOpacity
+                      key={`existing-${index}`}
+                      style={styles.documentRow}
+                      onPress={() => handleDocumentPress(doc)}
+                      activeOpacity={0.7}>
+                      <View style={styles.documentInfo}>
+                        <View style={styles.documentHeader}>
+                          <Icon
+                            name="document-text-outline"
+                            type="ionicon"
+                            color={COLORS.primary}
+                            size={20}
+                            style={styles.documentIcon}
+                          />
+                          <Text style={styles.documentName}>
+                            {doc.document?.filename ||
+                              doc.document_name ||
+                              doc.name ||
+                              'Document'}
+                          </Text>
+                        </View>
+                        <View style={styles.documentStatus}>
+                          <Text
+                            style={[
+                              styles.statusText,
+                              {
+                                color:
+                                  doc.document_status === 'Verified'
+                                    ? COLORS.success
+                                    : COLORS.textSecondary,
+                              },
+                            ]}>
+                            {doc.document_status || 'Pending'}
+                          </Text>
+                          <Text style={styles.verifiedText}>
+                            {doc.verified_at
+                              ? `Verified: ${new Date(
+                                  doc.verified_at,
+                                ).toLocaleDateString()}`
+                              : `Uploaded: ${new Date(
+                                  doc.created_at || new Date(),
+                                ).toLocaleDateString()}`}
+                          </Text>
+                          {doc.document_status === 'Verified' && (
+                            <View style={styles.signedContainer}>
+                              <Icon
+                                name="checkmark-circle"
+                                size={14}
+                                color={COLORS.success}
+                              />
+                              <Text style={styles.signedText}>Signed</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                  {/* Show newly uploaded documents */}
+                  {documents.map((doc, index) => (
+                    <TouchableOpacity
+                      key={`new-${index}`}
+                      style={styles.documentRow}
+                      onPress={() => handleDocumentPress(doc)}
+                      activeOpacity={0.7}>
+                      <View style={styles.documentInfo}>
+                        <View style={styles.documentHeader}>
+                          <Icon
+                            name="document-text-outline"
+                            type="ionicon"
+                            color={COLORS.primary}
+                            size={20}
+                            style={styles.documentIcon}
+                          />
+                          <Text style={styles.documentName}>
+                            {doc.document?.filename ||
+                              doc.document_name ||
+                              doc.name ||
+                              'Document'}
+                          </Text>
+                        </View>
+                        <View style={styles.documentStatus}>
+                          <Text
+                            style={[
+                              styles.statusText,
+                              {
+                                color:
+                                  doc.document_status === 'Verified'
+                                    ? COLORS.success
+                                    : COLORS.textSecondary,
+                              },
+                            ]}>
+                            {doc.document_status || 'Pending'}
+                          </Text>
+                          <Text style={styles.verifiedText}>
+                            {doc.verified_at
+                              ? `Verified: ${new Date(
+                                  doc.verified_at,
+                                ).toLocaleDateString()}`
+                              : `Uploaded: ${new Date(
+                                  doc.created_at || new Date(),
+                                ).toLocaleDateString()}`}
+                          </Text>
+                          {doc.document_status === 'Verified' && (
+                            <View style={styles.signedContainer}>
+                              <Icon
+                                name="checkmark-circle"
+                                size={14}
+                                color={COLORS.success}
+                              />
+                              <Text style={styles.signedText}>Signed</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </Card>
+            )}
+          </>
+        )}
       </ScrollView>
     </MainLayout>
   );
@@ -98,103 +485,175 @@ export default function CaseProceedingDetailScreen({route}: any) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 1,
     paddingBottom: 100,
   },
   backButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    alignSelf: 'flex-start',
+    marginLeft: 10,
+    marginTop: 10,
   },
   heading: {
     fontSize: 16,
     fontFamily: FONTS.semiBold,
     color: COLORS.primary,
+    marginLeft: 14,
     marginBottom: 10,
-    marginLeft: 10,
+  },
+  contentWrapper: {
+    paddingHorizontal: 14,
+    width: '100%',
   },
   card: {
+    marginHorizontal: 14,
+    marginTop: 10,
     borderRadius: 16,
     backgroundColor: '#fff',
-    elevation: 10,
+    elevation: 4,
     padding: 16,
+    minHeight: 300,
+    width: '100%',
   },
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 10,
   },
   title: {
+    fontSize: 18,
     fontFamily: FONTS.bold,
-    fontSize: 16,
     color: COLORS.textPrimary,
   },
   caseId: {
+    fontSize: 14,
     fontFamily: FONTS.medium,
-    fontSize: 13,
     color: COLORS.textSecondary,
   },
   label: {
-    fontFamily: FONTS.regular,
-    marginVertical: 4,
-  },
-  subHeading: {
+    fontSize: 14,
     fontFamily: FONTS.medium,
-    marginTop: 12,
+    marginTop: 10,
+    color: COLORS.textPrimary,
   },
   detail: {
-    fontFamily: FONTS.regular,
-    fontSize: 13,
-    marginBottom: 6,
-  },
-  docCard: {
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    width: '100%',
-    marginTop: 12,
-    marginLeft: 1,
-    elevation: 4,
-  },
-  fileName: {
-    fontFamily: FONTS.medium,
     fontSize: 14,
-  },
-  fileMeta: {
     fontFamily: FONTS.regular,
+    color: COLORS.textSecondary,
+    marginBottom: 10,
+  },
+  subHeading: {
+    fontSize: 16,
+    fontFamily: FONTS.semiBold,
+    marginTop: 10,
+    color: COLORS.textPrimary,
+  },
+  uploadCard: {
+    marginHorizontal: 14,
+    marginTop: 10,
+    borderRadius: 16,
+    backgroundColor: '#f9f9f9',
+    elevation: 4,
+    padding: 16,
+    width: '100%',
+  },
+  documentsCard: {
+    marginHorizontal: 14,
+    marginTop: 10,
+    borderRadius: 16,
+    backgroundColor: '#f9f9f9',
+    elevation: 4,
+    padding: 16,
+    minHeight: 300,
+    width: '100%',
+  },
+  uploadHeading: {
+    fontSize: 16,
+    fontFamily: FONTS.semiBold,
+    color: COLORS.textPrimary,
+    marginBottom: 16,
+  },
+  uploadButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    paddingVertical: 12,
+  },
+  uploadedList: {
+    marginTop: 8,
+  },
+  documentRow: {
+    marginBottom: 12,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    padding: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  documentInfo: {
+    flex: 1,
+  },
+  documentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  documentIcon: {
+    marginRight: 8,
+  },
+  documentName: {
+    fontSize: 14,
+    fontFamily: FONTS.medium,
+    color: COLORS.textPrimary,
+    flex: 1,
+  },
+  documentStatus: {
+    marginTop: 4,
+    marginLeft: 28,
+  },
+  statusText: {
     fontSize: 12,
+    fontFamily: FONTS.medium,
+  },
+  verifiedText: {
+    fontSize: 11,
+    fontFamily: FONTS.regular,
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
-  actionRow: {
+  documentsHeader: {
     flexDirection: 'row',
-  },
-  actionButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-  },
-  actionTitle: {
-    fontSize: 12,
-    fontFamily: FONTS.medium,
-  },
-  viewMoreRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 6,
+    marginBottom: 16,
   },
-  viewMoreText: {
-    fontFamily: FONTS.medium,
-    fontSize: 12,
-    color: COLORS.primary,
-    marginRight: 4,
-  },
-  footerButton: {
-    marginTop: 20,
-    marginRight: 80,
+  signAllButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: 10,
-    paddingVertical: 12,
-    width: '70%',
-    alignSelf: 'center',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    minWidth: 100,
+  },
+  signAllButtonText: {
+    fontSize: 14,
+    fontFamily: FONTS.medium,
+  },
+  signedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+  },
+  signedText: {
+    fontSize: 12,
+    fontFamily: FONTS.medium,
+    color: COLORS.success,
+    marginLeft: 4,
   },
 });
