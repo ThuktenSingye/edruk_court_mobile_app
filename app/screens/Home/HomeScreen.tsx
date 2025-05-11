@@ -138,7 +138,7 @@ export default function HomeScreen() {
                   onPress={() => {
                     navigation.navigate('Case', {
                       screen: 'CaseDetail',
-                      params: {caseId: caseItem.id},
+                      params: {caseId: caseItem.id.toString()},
                     });
                   }}
                 />

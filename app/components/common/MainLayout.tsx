@@ -5,7 +5,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {MainStackParamList} from '../../types/navigation';
 import {COLORS, FONTS, SIZES} from '../../constant/designTokens';
 import useUserStore from '../../store/useUserStore';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface Props {
   children: React.ReactNode;
@@ -49,11 +49,10 @@ export default function MainLayout({children}: Props) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={confirmLogout} style={styles.logoutIcon}>
-          <Icon
-            name="sign-out"
+          <MaterialCommunityIcons
+            name="logout"
             size={24}
             color={COLORS.primary}
-            onPress={confirmLogout}
           />
         </TouchableOpacity>
       </View>
