@@ -1,72 +1,69 @@
 import React from 'react';
-import {View, Text, StyleSheet, FlatList} from 'react-native';
-import {Card, Button} from '@rneui/themed';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
+import {Card} from '@rneui/themed';
 import MainLayout from '../../components/common/MainLayout';
 import {COLORS} from '../../constant/designTokens';
-
-// Sample schedule data
-const schedules = [
-  {
-    id: 'C10002',
-    title: 'Preliminary Hearing',
-    description:
-      'You are required to come to p/ling court for preliminary hearing procedure on Wednesday',
-    date: '21/09/24',
-    room: 'Bench 1',
-    venue: 'Phuentsholing Dungkhag court',
-  },
-  {
-    id: 'C10003',
-    title: 'Preliminary Hearing',
-    description:
-      'You are required to come to Thimphu court for final argument procedure on Friday',
-    date: '25/09/24',
-    room: 'Bench 3',
-    venue: 'Thimphu District Court',
-  },
-];
+import {useSchedule} from '../../hooks/useSchedule';
 
 export default function ScheduleScreen() {
-  const renderCard = ({item}: {item: (typeof schedules)[0]}) => (
+  const {data: schedules, isLoading, error} = useSchedule();
+
+  const renderCard = ({item}: {item: any}) => (
     <Card containerStyle={styles.card}>
       <View style={styles.rowBetween}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Text style={styles.caseId}>{item.id}</Text>
+        <Text style={styles.cardTitle}>{item.hearing_type_name}</Text>
+        <Text style={styles.caseId}>{item.id || 'N/A'}</Text>
       </View>
 
-      <Text style={styles.description}>{item.description}</Text>
+      <Text style={styles.description}>{item.case_title}</Text>
 
       <View style={styles.detailRow}>
         <Text style={styles.label}>Date & Time</Text>
-        <Text style={styles.value}>{item.date}</Text>
+        <Text style={styles.value}>
+          {new Date(item.scheduled_date).toLocaleDateString()}
+        </Text>
       </View>
 
       <View style={styles.detailRow}>
-        <Text style={styles.label}>Bench / Court Room No</Text>
-        <Text style={styles.value}>{item.room}</Text>
+        <Text style={styles.label}>Status</Text>
+        <Text style={styles.value}>{item.hearing_status}</Text>
       </View>
 
       <View style={styles.detailRow}>
-        <Text style={styles.label}>Venue</Text>
-        <Text style={styles.value}>{item.venue}</Text>
-      </View>
-
-      <View style={styles.rowBetween}>
-        <Button
-          title="Mark as read"
-          type="clear"
-          titleStyle={styles.buttonText}
-          onPress={() => {}}
-        />
-        <Button
-          title="Dismiss"
-          type="clear"
-          titleStyle={styles.buttonText}
-          onPress={() => {}}
-        />
+        <Text style={styles.label}>Scheduled By</Text>
+        <Text
+          style={
+            styles.value
+          }>{`${item.scheduled_by.first_name} ${item.scheduled_by.last_name}`}</Text>
       </View>
     </Card>
   );
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      </MainLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainLayout>
+        <View style={styles.container}>
+          <Text style={styles.errorText}>Failed to load schedules</Text>
+        </View>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -74,7 +71,7 @@ export default function ScheduleScreen() {
         <Text style={styles.header}>Schedule</Text>
         <FlatList
           data={schedules}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id.toString()}
           renderItem={renderCard}
           showsVerticalScrollIndicator={false}
         />
@@ -136,5 +133,10 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });

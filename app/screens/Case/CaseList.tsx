@@ -12,6 +12,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {CaseStackParamList} from '../../types/navigation';
 import MainLayout from '../../components/common/MainLayout';
 import {useCaseList} from '../../hooks/useCaseList';
+import {COLORS} from '../../constant/designTokens';
 
 export default function CaseList() {
   const navigation =
@@ -56,7 +57,7 @@ export default function CaseList() {
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.summary}>{item.summary}</Text>
             <View style={styles.bottomRow}>
-              <Text style={styles.status}>Status: {item.case_status}</Text>
+              <Text style={styles.status}>{item.case_status}</Text>
               <Text style={styles.link}>View More</Text>
             </View>
           </TouchableOpacity>
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
   },
   status: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.textPrimary,
   },
   link: {
     color: 'green',
