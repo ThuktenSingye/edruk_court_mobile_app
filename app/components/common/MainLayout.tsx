@@ -1,9 +1,11 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {MainStackParamList} from '../../types/navigation';
 import {COLORS, FONTS, SIZES} from '../../constant/designTokens';
+import useUserStore from '../../store/useUserStore';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface Props {
   children: React.ReactNode;
@@ -12,6 +14,21 @@ interface Props {
 export default function MainLayout({children}: Props) {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const logout = useUserStore(state => state.logout);
+  const user = useUserStore(state => state.user);
+
+  const confirmLogout = () => {
+    Alert.alert('Are you sure?', 'You will be logged out.', [
+      {text: 'No', style: 'cancel'},
+      {
+        text: 'Yes',
+        onPress: () => {
+          logout();
+        },
+        style: 'destructive',
+      },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
@@ -19,13 +36,25 @@ export default function MainLayout({children}: Props) {
       <View style={styles.header}>
         <View style={styles.avatar} />
         <Text style={styles.greeting}>
-          Kuzu Zangpo, <Text style={styles.bold}>Dorji</Text>
+          Kuzu Zangpo,{' '}
+          <Text style={styles.bold}>
+            {user?.profile.first_name} {user?.profile.last_name}
+          </Text>
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
           <View style={styles.bellWrap}>
             <Text style={styles.badge}>2</Text>
             <Text style={styles.bell}>🔔</Text>
           </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={confirmLogout} style={styles.logoutIcon}>
+          <Icon
+            name="sign-out"
+            size={24}
+            color={COLORS.primary}
+            onPress={confirmLogout}
+          />
         </TouchableOpacity>
       </View>
 
@@ -75,6 +104,9 @@ const styles = StyleSheet.create({
   },
   bell: {
     fontSize: SIZES.large,
+  },
+  logoutIcon: {
+    marginLeft: -2,
   },
   divider: {
     borderBottomColor: COLORS.secondary,

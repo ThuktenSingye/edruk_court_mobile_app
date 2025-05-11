@@ -16,5 +16,5 @@ export interface User {
 export interface UserStore {
   user: User | null;
   setUser: (userData: User) => void;
-  clearUser: () => void;
+  logout: () => void;
 }

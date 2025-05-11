@@ -6,6 +6,7 @@ export type MainStackParamList = {
   CaseProceedingDetail: {title: string};
   FileCase: undefined;
   Login: undefined;
+  Signup: undefined;
 };
 
 export type TabParamList = {

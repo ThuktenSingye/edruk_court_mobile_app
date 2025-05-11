@@ -10,14 +10,23 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import {Input, Button, Icon} from '@rneui/themed';
+import {Input, Button} from '@rneui/themed';
 import {COLORS, SIZES} from '../../constant/designTokens';
 import {useLogin} from '../../hooks/useLogin';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useNavigation} from '@react-navigation/native';
+import {MainStackParamList} from '../../types/navigation';
+
+type LoginScreenNavigationProp = NativeStackNavigationProp<
+  MainStackParamList,
+  'Login'
+>;
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const navigation = useNavigation<LoginScreenNavigationProp>();
 
   const loginMutation = useLogin();
 
@@ -96,7 +105,7 @@ const LoginScreen = () => {
           {/* Sign Up Link */}
           <View style={styles.signupContainer}>
             <Text style={styles.noAccountText}>No account? </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
               <Text style={styles.signupText}>Sign up</Text>
             </TouchableOpacity>
           </View>

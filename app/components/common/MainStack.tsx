@@ -32,6 +32,7 @@ import FileCaseScreen from '../../screens/Home/FileCaseScreen';
 import {MainStackParamList} from '../../types/navigation';
 import LoginScreen from '../../screens/Auth/LoginScreen';
 import useUserStore from '../../store/useUserStore';
+import SignupScreen from '../../screens/Auth/SignupScreen';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
@@ -50,7 +51,10 @@ export default function MainStack() {
           <Stack.Screen name="FileCase" component={FileCaseScreen} />
         </>
       ) : (
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+        </>
       )}
     </Stack.Navigator>
   );
