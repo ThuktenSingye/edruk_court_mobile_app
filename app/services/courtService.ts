@@ -3,7 +3,7 @@ import {getToken} from '../utils/token';
 
 export const fetchCourts = async (): Promise<CourtResponse> => {
   const token = await getToken();
-  const response = await fetch('http://10.2.5.80:3001/api/v1/courts', {
+  const response = await fetch('http://10.2.35.53:3001/api/v1/courts', {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

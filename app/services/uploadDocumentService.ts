@@ -22,7 +22,7 @@ export const uploadHearingDocument = async (
       throw new Error('No token found. Please log in again.');
     }
 
-    const url = `http://10.2.5.80:3001/api/v1/user/cases/${caseId}/hearings/${hearingId}/documents`;
+    const url = `http://10.2.35.53:3001/api/v1/user/cases/${caseId}/hearings/${hearingId}/documents`;
 
     const response = await fetch(url, {
       method: 'POST',

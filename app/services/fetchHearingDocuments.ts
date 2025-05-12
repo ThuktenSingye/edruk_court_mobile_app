@@ -10,7 +10,7 @@ export const fetchHearingDocuments = async (
   }
 
   const response = await fetch(
-    `http://10.2.5.80:3001/api/v1/user/cases/${caseId}/hearings/${hearingId}/documents`,
+    `http://10.2.35.53:3001/api/v1/user/cases/${caseId}/hearings/${hearingId}/documents`,
     {
       method: 'GET',
       headers: {

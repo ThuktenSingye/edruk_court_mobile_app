@@ -11,6 +11,7 @@ const getColorForStatus = (status: string) => {
     case 'pending':
       return '#b91c1c'; // red
     case 'approved':
+    case 'ongoing':
       return '#166534'; // Green
     case 'rejected':
       return '#b91c1c'; // Red

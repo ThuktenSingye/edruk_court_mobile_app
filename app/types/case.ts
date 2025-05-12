@@ -13,6 +13,9 @@ export interface Case {
   judgement_number: string;
   title: string;
   summary: string;
+  judge: string;
+  court: string;
+  clerk: string;
   case_status: string;
   case_priority: string | null;
   documents: Document[];

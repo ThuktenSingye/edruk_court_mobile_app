@@ -1,3 +1,5 @@
+import {Case} from './case';
+
 export type MainStackParamList = {
   Tabs: undefined;
   Notification: undefined;
@@ -26,8 +28,8 @@ export type RootStackParamList = {
 
 export type CaseStackParamList = {
   CaseMain: undefined;
-  CaseDetail: {caseId: string};
+  CaseDetail: {case: Case};
   DefendentInfo: undefined;
-  CaseProceeding: undefined;
+  CaseProceeding: {caseId: number};
   FileCase: undefined;
 };

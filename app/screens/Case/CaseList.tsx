@@ -51,9 +51,7 @@ export default function CaseList() {
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.card}
-            onPress={() =>
-              navigation.navigate('CaseDetail', {caseId: item.id.toString()})
-            }>
+            onPress={() => navigation.navigate('CaseDetail', {case: item})}>
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.summary}>{item.summary}</Text>
             <View style={styles.bottomRow}>

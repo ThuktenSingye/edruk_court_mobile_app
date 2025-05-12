@@ -1,7 +1,7 @@
 import {getToken} from '../utils/token';
 import {CaseListResponse} from '../types/caselist';
 
-const API_BASE_URL = 'http://10.2.5.80:3001/api/v1';
+const API_BASE_URL = 'http://10.2.35.53:3001/api/v1';
 
 export async function fetchCases(): Promise<CaseListResponse> {
   try {

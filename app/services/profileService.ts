@@ -1,7 +1,7 @@
 import {ProfileResponse} from '../types/profile';
 import {getToken} from '../utils/token';
 
-const API_BASE_URL = 'http://10.2.5.80:3001/api/v1';
+const API_BASE_URL = 'http://10.2.35.53:3001/api/v1';
 
 export const profileService = {
   getProfile: async (userId: string): Promise<ProfileResponse> => {

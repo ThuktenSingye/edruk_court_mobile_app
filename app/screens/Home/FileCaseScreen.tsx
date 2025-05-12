@@ -13,9 +13,7 @@ import MainLayout from '../../components/common/MainLayout';
 import {COLORS, FONTS} from '../../constant/designTokens';
 import {useFileCase} from '../../hooks/useFileCase';
 import {useCourts} from '../../hooks/useCourts';
-import {Court} from '../../types/court';
-// import RNPickerSelect from 'react-native-picker-select';
-import {Dropdown} from '@rneui/themed';
+import {Picker} from '@react-native-picker/picker';
 
 // Define the type for the document in the form state
 interface FileDoc {
@@ -59,13 +57,15 @@ export default function FileCaseScreen() {
     address_type: '',
     documents: [],
     documentNames: [],
-    registration_number: 'REG-2024-001',
-    judgement_number: 'JUD-2024-001',
+    registration_number: 'REG-2024-545',
+    judgement_number: 'JUD-2024-080',
   });
 
   const mutation = useFileCase();
   const {data, isLoading, error} = useCourts();
-  const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownValue, setDropdownValue] = useState(form.court_id);
+  // const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
 
   const handleInputChange = (field: string, value: string) => {
     setForm(prev => ({...prev, [field]: value}));
@@ -203,12 +203,17 @@ export default function FileCaseScreen() {
             onChangeText={text => handleInputChange('title', text)}
           />
           <Text style={styles.sectionTitle}>Select Court</Text>
-          <Dropdown
-            label="Select Court"
-            data={courtOptions || []}
-            value={form.court_id}
-            onChange={value => handleInputChange('court_id', value)}
-          />
+          <Picker
+            selectedValue={form.court_id}
+            onValueChange={value => handleInputChange('court_id', value)}>
+            {courtOptions?.map(option => (
+              <Picker.Item
+                key={option.value}
+                label={option.label}
+                value={option.value}
+              />
+            ))}
+          </Picker>
           <Input
             label="Summary"
             value={form.summary}

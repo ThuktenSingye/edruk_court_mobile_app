@@ -6,6 +6,7 @@ import {MainStackParamList} from '../../types/navigation';
 import {COLORS, FONTS, SIZES} from '../../constant/designTokens';
 import useUserStore from '../../store/useUserStore';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Avatar} from '@rneui/themed';
 
 interface Props {
   children: React.ReactNode;
@@ -34,27 +35,37 @@ export default function MainLayout({children}: Props) {
     <View style={styles.container}>
       {/* Top Bar */}
       <View style={styles.header}>
-        <View style={styles.avatar} />
-        <Text style={styles.greeting}>
-          Kuzu Zangpo,{' '}
-          <Text style={styles.bold}>
-            {user?.profile.first_name} {user?.profile.last_name}
-          </Text>
-        </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
-          <View style={styles.bellWrap}>
-            <Text style={styles.badge}>2</Text>
-            <Text style={styles.bell}>🔔</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={confirmLogout} style={styles.logoutIcon}>
-          <MaterialCommunityIcons
-            name="logout"
-            size={24}
-            color={COLORS.primary}
+        <View style={styles.avatarContainer}>
+          {/* <View style={styles.avatar} /> */}
+          <Avatar
+            rounded
+            size="medium"
+            source={{uri: user?.profile.avatar}}
+            containerStyle={styles.avatar}
           />
-        </TouchableOpacity>
+          <View style={styles.greetingContainer}>
+            <Text style={styles.greeting}>Kuzu Zangpo</Text>
+            <Text style={styles.name}>
+              {user?.profile.first_name} {user?.profile.last_name}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.rightHeader}>
+          <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+            <View style={styles.bellWrap}>
+              <Text style={styles.badge}>2</Text>
+              <Text style={styles.bell}>🔔</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={confirmLogout} style={styles.logoutIcon}>
+            <MaterialCommunityIcons
+              name="logout"
+              size={24}
+              color={COLORS.primary}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.divider} />
@@ -77,15 +88,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  avatarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  rightHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
   avatar: {
     backgroundColor: COLORS.primary,
     width: 48,
     height: 48,
     borderRadius: 24,
   },
+  name: {
+    fontWeight: '700',
+    fontSize: SIZES.medium,
+    color: COLORS.primary,
+  },
+  greetingContainer: {
+    flexDirection: 'column', // Added to display text in a column
+  },
   greeting: {
     fontFamily: FONTS.medium,
-    fontSize: SIZES.medium,
     color: COLORS.textPrimary,
   },
   bold: {

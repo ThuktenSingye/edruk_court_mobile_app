@@ -8,7 +8,7 @@ export const loginUser = async ({
   password,
 }: LoginParams): Promise<User> => {
   console.log('login Credential:', email, password);
-  const response = await fetch('http://10.2.5.80:3001/api/v1/auth/sign_in', {
+  const response = await fetch('http://10.2.35.53:3001/api/v1/auth/sign_in', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({user: {email, password}}),

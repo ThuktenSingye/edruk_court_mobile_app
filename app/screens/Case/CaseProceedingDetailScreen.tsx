@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {Card, Text, Button, Icon} from '@rneui/themed';
 import MainLayout from '../../components/common/MainLayout';
-import {COLORS, FONTS} from '../../constant/designTokens';
+import {COLORS, FONTS, SIZES} from '../../constant/designTokens';
 import {useNavigation} from '@react-navigation/native';
 import {pick, types} from '@react-native-documents/picker';
 import {useUploadHearingDocument} from '../../hooks/useUploadHearingDocuments';
@@ -207,7 +207,7 @@ export default function CaseProceedingDetailScreen({route}: any) {
             );
 
             const response = await fetch(
-              `http://10.2.5.80:3001/api/v1/user/cases/${caseId}/hearings/${hearing.id}/documents/${docId}/sign`,
+              `http://10.2.35.53:3001/api/v1/user/cases/${caseId}/hearings/${hearing.id}/documents/${docId}/sign`,
               {
                 method: 'POST',
                 headers: {
@@ -304,35 +304,35 @@ export default function CaseProceedingDetailScreen({route}: any) {
           />
         </TouchableOpacity>
 
-        <Text style={styles.heading}>{title}</Text>
+        <Text style={styles.title}>{title} Hearing</Text>
 
-        <View style={styles.contentWrapper}>
-          {/* Hearing Details Card */}
-          <Card containerStyle={styles.card}>
-            <View style={styles.rowBetween}>
-              <Text style={styles.title}>{hearing.hearing_type}</Text>
-              <Text style={styles.caseId}>Case ID: {hearing.case_number}</Text>
-            </View>
+        {/* <View style={styles.contentWrapper}> */}
+        {/* Hearing Details Card */}
+        <Card containerStyle={styles.card}>
+          <View style={styles.rowBetween}>
+            {/* <Text style={styles.title}>{hearing.hearing_type}</Text> */}
+            <Text style={styles.caseId}>Case ID: {hearing.case_number}</Text>
+          </View>
 
-            <Text style={styles.label}>Short Description</Text>
-            <Text style={styles.detail}>{hearing.summary}</Text>
+          <Text style={styles.label}>Short Description</Text>
+          <Text style={styles.detail}>{hearing.summary}</Text>
 
-            <Text style={styles.subHeading}>Date & Time:</Text>
-            {hearing.schedules.map((schedule: any) => (
-              <Text key={schedule.id} style={styles.detail}>
-                {schedule.scheduled_date} - {schedule.schedule_status}
-              </Text>
-            ))}
+          <Text style={styles.subHeading}>Date & Time:</Text>
+          {hearing.schedules.map((schedule: any) => (
+            <Text key={schedule.id} style={styles.detail}>
+              {schedule.scheduled_date} - {schedule.schedule_status}
+            </Text>
+          ))}
 
-            <Text style={styles.subHeading}>Status:</Text>
-            <Text style={styles.detail}>{hearing.hearing_status}</Text>
-          </Card>
-        </View>
+          <Text style={styles.subHeading}>Status:</Text>
+          <Text style={styles.detail}>{hearing.hearing_status}</Text>
+        </Card>
+        {/* </View> */}
 
         {/* Upload Card */}
         {hearing.hearing_type !== 'Miscellaneous' && (
           <>
-            <Card containerStyle={styles.uploadCard}>
+            <Card containerStyle={styles.card}>
               <Text style={styles.uploadHeading}>Upload Documents</Text>
               <Button
                 title={isPending ? 'Uploading...' : 'Select & Upload PDFs'}
@@ -344,14 +344,13 @@ export default function CaseProceedingDetailScreen({route}: any) {
 
             {/* Documents List Card */}
             {(hearingDocuments?.length > 0 || documents.length > 0) && (
-              <Card containerStyle={styles.documentsCard}>
-                <View style={styles.documentsHeader}>
+              <Card containerStyle={styles.card}>
+                <View style={styles.documentHeader}>
                   <Text style={styles.uploadHeading}>Documents</Text>
                   <Button
                     title="Sign All"
                     onPress={handleSignAll}
                     buttonStyle={styles.signAllButton}
-                    titleStyle={styles.signAllButtonText}
                   />
                 </View>
                 <View style={styles.uploadedList}>
@@ -417,26 +416,24 @@ export default function CaseProceedingDetailScreen({route}: any) {
                   {/* Show newly uploaded documents */}
                   {documents.map((doc, index) => (
                     <TouchableOpacity
-                      key={`new-${index}`}
+                      key={`existing-${index}`}
                       style={styles.documentRow}
                       onPress={() => handleDocumentPress(doc)}
                       activeOpacity={0.7}>
+                      <Icon
+                        name="document-text-outline"
+                        type="ionicon"
+                        color={COLORS.primary}
+                        size={24}
+                        style={styles.documentIcon}
+                      />
                       <View style={styles.documentInfo}>
-                        <View style={styles.documentHeader}>
-                          <Icon
-                            name="document-text-outline"
-                            type="ionicon"
-                            color={COLORS.primary}
-                            size={20}
-                            style={styles.documentIcon}
-                          />
-                          <Text style={styles.documentName}>
-                            {doc.document?.filename ||
-                              doc.document_name ||
-                              doc.name ||
-                              'Document'}
-                          </Text>
-                        </View>
+                        <Text style={styles.documentName} numberOfLines={1}>
+                          {doc.document?.filename ||
+                            doc.document_name ||
+                            doc.name ||
+                            'Document'}
+                        </Text>
                         <View style={styles.documentStatus}>
                           <Text
                             style={[
@@ -459,17 +456,17 @@ export default function CaseProceedingDetailScreen({route}: any) {
                                   doc.created_at || new Date(),
                                 ).toLocaleDateString()}`}
                           </Text>
-                          {doc.document_status === 'Verified' && (
-                            <View style={styles.signedContainer}>
-                              <Icon
-                                name="checkmark-circle"
-                                size={14}
-                                color={COLORS.success}
-                              />
-                              <Text style={styles.signedText}>Signed</Text>
-                            </View>
-                          )}
                         </View>
+                        {doc.document_status === 'Verified' && (
+                          <View style={styles.signedContainer}>
+                            <Icon
+                              name="checkmark-circle"
+                              size={14}
+                              color={COLORS.success}
+                            />
+                            <Text style={styles.signedText}>Signed</Text>
+                          </View>
+                        )}
                       </View>
                     </TouchableOpacity>
                   ))}
@@ -499,18 +496,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   contentWrapper: {
-    paddingHorizontal: 14,
-    width: '100%',
+    // paddingHorizontal: 14,
+    // width: '100%',
   },
   card: {
-    marginHorizontal: 14,
-    marginTop: 10,
+    elevation: 2,
     borderRadius: 16,
-    backgroundColor: '#fff',
-    elevation: 4,
-    padding: 16,
-    minHeight: 300,
-    width: '100%',
   },
   rowBetween: {
     flexDirection: 'row',
@@ -520,7 +511,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: FONTS.bold,
-    color: COLORS.textPrimary,
+    color: COLORS.primary,
   },
   caseId: {
     fontSize: 14,
@@ -545,25 +536,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: COLORS.textPrimary,
   },
-  uploadCard: {
-    marginHorizontal: 14,
-    marginTop: 10,
-    borderRadius: 16,
-    backgroundColor: '#f9f9f9',
-    elevation: 4,
-    padding: 16,
-    width: '100%',
-  },
-  documentsCard: {
-    marginHorizontal: 14,
-    marginTop: 10,
-    borderRadius: 16,
-    backgroundColor: '#f9f9f9',
-    elevation: 4,
-    padding: 16,
-    minHeight: 300,
-    width: '100%',
-  },
   uploadHeading: {
     fontSize: 16,
     fontFamily: FONTS.semiBold,
@@ -572,15 +544,23 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: 8,
-    paddingVertical: 12,
+    borderRadius: 5,
+    paddingVertical: 10,
   },
   uploadedList: {
     marginTop: 8,
   },
+  documentHeader: {
+    flexDirection: 'row', // Arrange items in a row
+    justifyContent: 'space-between', // Space out the Text and Button
+    alignItems: 'center', // Align items vertically in the center
+    marginBottom: 12, // Add spacing below the header
+  },
   documentRow: {
+    flexDirection: 'row', // Align icon and document info horizontally
+    alignItems: 'center', // Center items vertically
     marginBottom: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff', // White background for better contrast
     borderRadius: 8,
     padding: 12,
     elevation: 2,
@@ -591,14 +571,13 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
+    borderWidth: 1, // Add a border for better separation
+    borderColor: '#e0e0e0', // Light gray border
   },
   documentInfo: {
-    flex: 1,
-  },
-  documentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
+    flex: 1, // Take up remaining space
+    flexDirection: 'column', // Stack text vertically
+    marginLeft: 12, // Add spacing between icon and text
   },
   documentIcon: {
     marginRight: 8,
@@ -608,14 +587,18 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.medium,
     color: COLORS.textPrimary,
     flex: 1,
+    textDecorationLine: 'underline',
   },
   documentStatus: {
     marginTop: 4,
-    marginLeft: 28,
+    flexDirection: 'row', // Align status and verified text horizontally
+    justifyContent: 'space-between', // Space out the elements
+    alignItems: 'center',
   },
   statusText: {
     fontSize: 12,
     fontFamily: FONTS.medium,
+    color: COLORS.textSecondary,
   },
   verifiedText: {
     fontSize: 11,
@@ -623,28 +606,11 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 2,
   },
-  documentsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  signAllButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    minWidth: 100,
-  },
-  signAllButtonText: {
-    fontSize: 14,
-    fontFamily: FONTS.medium,
-  },
   signedContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    backgroundColor: 'rgba(76, 175, 80, 0.1)', // Light green background for signed status
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
@@ -655,5 +621,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.medium,
     color: COLORS.success,
     marginLeft: 4,
+  },
+  signAllButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 5,
+    paddingVertical: 10,
   },
 });
