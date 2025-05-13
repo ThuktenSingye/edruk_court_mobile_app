@@ -36,7 +36,7 @@ export default function BottomTabBar({
         .map((route, index) => {
           const {options} = descriptors[route.key];
           const isFocused = state.index === index;
-          const color = isFocused ? '#CCCCCC' : '#FFFFFF';
+          const color = isFocused ? '#FFFFFF' : '#CCCCCC';
 
           const rawLabel = options.tabBarLabel ?? options.title ?? route.name;
           const label = typeof rawLabel === 'string' ? rawLabel : route.name;

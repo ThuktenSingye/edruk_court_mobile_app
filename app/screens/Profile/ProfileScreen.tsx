@@ -15,8 +15,9 @@ import {COLORS, FONTS} from '../../constant/designTokens';
 import {useProfile} from '../../hooks/useProfile';
 import useUserStore from '../../store/useUserStore';
 import {User} from '../../types/user';
+import {useTranslation} from 'react-i18next';
+import {SIZES} from '../../constant/designTokens';
 
-// Placeholder icons (replace with your SVGs or icon library as needed)
 const AddressIcon = () => (
   <View style={styles.iconBox}>
     <RNText style={{fontSize: 24, color: COLORS.primary}}>🏠</RNText>
@@ -55,6 +56,7 @@ interface ProfileData {
 export default function ProfileScreen() {
   const user: User | null = useUserStore(state => state.user);
   const {data, isLoading, error} = useProfile(user?.id.toString() || '0');
+  const {t} = useTranslation();
   // const {data, isLoading, error} = useQuery({
   //   queryKey: ['profile'],
   //   queryFn: async () => {
@@ -145,7 +147,7 @@ export default function ProfileScreen() {
           <View style={styles.infoRowBox}>
             <PhoneIcon />
             <View style={styles.infoTextBox}>
-              <Text style={styles.infoLabel}>Contact Number</Text>
+              <Text style={styles.label}>{t('contact_number')}</Text>
               <Text style={styles.infoValue}>{data?.phone_number}</Text>
             </View>
           </View>
@@ -153,7 +155,7 @@ export default function ProfileScreen() {
           <View style={styles.infoRowBox}>
             <CIDIcon />
             <View style={styles.infoTextBox}>
-              <Text style={styles.infoLabel}>CID</Text>
+              <Text style={styles.label}>{t('cid')}</Text>
               <Text style={styles.infoValue}>{data?.cid_no}</Text>
             </View>
           </View>
@@ -194,7 +196,7 @@ export default function ProfileScreen() {
           <View style={styles.infoRowBox}>
             <AddressIcon />
             <View style={styles.infoTextBox}>
-              <Text style={styles.infoLabel}>Present Address</Text>
+              <Text style={styles.label}>{t('present_address')}</Text>
               <Text style={styles.infoValue}>
                 {data?.present_address || 'Not provided'}
               </Text>
@@ -204,7 +206,7 @@ export default function ProfileScreen() {
           <View style={styles.infoRowBox}>
             <AddressIcon />
             <View style={styles.infoTextBox}>
-              <Text style={styles.infoLabel}>Permanent Address</Text>
+              <Text style={styles.label}>{t('permanent_address')}</Text>
               <Text style={styles.infoValue}>
                 {data?.permanent_address || 'Not provided'}
               </Text>
@@ -319,5 +321,10 @@ const styles = StyleSheet.create({
   },
   infoSection: {
     marginBottom: 24,
+  },
+  label: {
+    fontSize: SIZES.small,
+    color: COLORS.textSecondary,
+    fontFamily: FONTS.regular,
   },
 });

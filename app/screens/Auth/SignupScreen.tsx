@@ -15,6 +15,7 @@ import {Input, Button} from '@rneui/themed';
 import {COLORS, SIZES} from '../../constant/designTokens';
 import {useNavigation} from '@react-navigation/native';
 import {launchImageLibrary} from 'react-native-image-picker';
+import {useTranslation} from 'react-i18next';
 
 const SignupScreen = () => {
   const [email, setEmail] = useState('');
@@ -29,6 +30,7 @@ const SignupScreen = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const navigation = useNavigation();
+  const {t} = useTranslation();
 
   const handleChoosePhoto = () => {
     launchImageLibrary(
@@ -86,7 +88,7 @@ const SignupScreen = () => {
               />
             </View>
 
-            <Text style={styles.signupTitle}>Create Account</Text>
+            <Text style={styles.signupTitle}>{t('create_account')}</Text>
 
             <TouchableOpacity
               style={styles.imageUpload}
@@ -98,13 +100,15 @@ const SignupScreen = () => {
                 />
               ) : (
                 <View style={styles.imagePlaceholder}>
-                  <Text style={{color: COLORS.textSecondary}}>Add Photo</Text>
+                  <Text style={{color: COLORS.textSecondary}}>
+                    {t('add_photo')}
+                  </Text>
                 </View>
               )}
             </TouchableOpacity>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Email</Text>
+              <Text style={styles.inputLabel}>{t('email')}</Text>
               <Input
                 placeholder="pema@example.com"
                 value={email}
@@ -122,7 +126,7 @@ const SignupScreen = () => {
 
               <View style={styles.row}>
                 <View style={styles.column}>
-                  <Text style={styles.inputLabel}>CID No.</Text>
+                  <Text style={styles.inputLabel}>{t('cid_no.')}</Text>
                   <Input
                     value={cidNo}
                     onChangeText={setCidNo}
@@ -133,7 +137,7 @@ const SignupScreen = () => {
                   />
                 </View>
                 <View style={styles.column}>
-                  <Text style={styles.inputLabel}>Phone</Text>
+                  <Text style={styles.inputLabel}>{t('phone')}</Text>
                   <Input
                     value={phoneNumber}
                     onChangeText={setPhoneNumber}
@@ -147,7 +151,7 @@ const SignupScreen = () => {
 
               <View style={styles.row}>
                 <View style={styles.column}>
-                  <Text style={styles.inputLabel}>First Name</Text>
+                  <Text style={styles.inputLabel}>{t('first_name')}</Text>
                   <Input
                     value={firstName}
                     onChangeText={setFirstName}
@@ -157,7 +161,7 @@ const SignupScreen = () => {
                   />
                 </View>
                 <View style={styles.column}>
-                  <Text style={styles.inputLabel}>Last Name</Text>
+                  <Text style={styles.inputLabel}>{t('last_name')}</Text>
                   <Input
                     value={lastName}
                     onChangeText={setLastName}
@@ -168,9 +172,9 @@ const SignupScreen = () => {
                 </View>
               </View>
 
-              <Text style={styles.inputLabel}>Gender</Text>
+              <Text style={styles.inputLabel}>{t('gender')}</Text>
               <View style={styles.genderContainer}>
-                {['male', 'female', 'other'].map(option => (
+                {[t('male'), t('female'), t('other')].map(option => (
                   <TouchableOpacity
                     key={option}
                     style={[
@@ -190,7 +194,7 @@ const SignupScreen = () => {
                 ))}
               </View>
 
-              <Text style={styles.inputLabel}>Password</Text>
+              <Text style={styles.inputLabel}>{t('password')}</Text>
               <Input
                 value={password}
                 onChangeText={setPassword}
@@ -205,7 +209,7 @@ const SignupScreen = () => {
                 }}
               />
 
-              <Text style={styles.inputLabel}>Confirm Password</Text>
+              <Text style={styles.inputLabel}>{t('confirm_password')}</Text>
               <Input
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -217,7 +221,7 @@ const SignupScreen = () => {
             </View>
 
             <Button
-              title="Sign Up"
+              title={t('signup')}
               buttonStyle={styles.signupButton}
               containerStyle={styles.signupButtonContainer}
               onPress={handleSignUp}
@@ -225,10 +229,10 @@ const SignupScreen = () => {
 
             <View style={styles.loginContainer}>
               <Text style={styles.haveAccountText}>
-                Already have an account?{' '}
+                {t('account_confirmation')}?{' '}
               </Text>
               <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Text style={styles.loginText}>Login</Text>
+                <Text style={styles.loginText}>{t('login')}</Text>
               </TouchableOpacity>
             </View>
           </View>

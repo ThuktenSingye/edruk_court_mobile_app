@@ -10,9 +10,11 @@ import {Card} from '@rneui/themed';
 import MainLayout from '../../components/common/MainLayout';
 import {COLORS} from '../../constant/designTokens';
 import {useSchedule} from '../../hooks/useSchedule';
+import {useTranslation} from 'react-i18next';
 
 export default function ScheduleScreen() {
   const {data: schedules, isLoading, error} = useSchedule();
+  const {t} = useTranslation();
 
   const renderCard = ({item}: {item: any}) => (
     <Card containerStyle={styles.card}>
@@ -68,7 +70,7 @@ export default function ScheduleScreen() {
   return (
     <MainLayout>
       <View style={styles.container}>
-        <Text style={styles.header}>Schedule</Text>
+        <Text style={styles.header}>{t('schedule')}</Text>
         <FlatList
           data={schedules}
           keyExtractor={item => item.id.toString()}
@@ -82,19 +84,20 @@ export default function ScheduleScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    marginHorizontal: 10,
   },
   header: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: COLORS.textPrimary,
+    color: COLORS.primary,
   },
   card: {
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
     elevation: 4,
+    margin: 0,
   },
   rowBetween: {
     flexDirection: 'row',

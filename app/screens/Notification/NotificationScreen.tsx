@@ -2,7 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import MainLayout from '../../components/common/MainLayout';
 import {COLORS, FONTS, SIZES, SHADOWS} from '../../constant/designTokens';
-
+import {useTranslation} from 'react-i18next';
 const notifications = [
   {
     id: '1',
@@ -19,16 +19,17 @@ const notifications = [
 ];
 
 export default function NotificationScreen() {
+  const {t} = useTranslation();
   const renderNotification = ({item}: any) => (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>{item.title}</Text>
       <Text style={styles.cardDesc}>{item.description}</Text>
       <View style={styles.actions}>
         <TouchableOpacity>
-          <Text style={styles.read}>Mark as read</Text>
+          <Text style={styles.read}>{t('mark_as_read')}</Text>
         </TouchableOpacity>
         <TouchableOpacity>
-          <Text style={styles.viewMore}>View More</Text>
+          <Text style={styles.viewMore}>{t('view_more')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -36,7 +37,7 @@ export default function NotificationScreen() {
 
   return (
     <MainLayout>
-      <Text style={styles.title}>Notification</Text>
+      <Text style={styles.title}>{t('notification')}</Text>
       <FlatList
         data={notifications}
         renderItem={renderNotification}

@@ -1,4 +1,5 @@
 import React from 'react';
+import './app/i18n/i18n';
 import {NavigationContainer} from '@react-navigation/native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {enableScreens} from 'react-native-screens';

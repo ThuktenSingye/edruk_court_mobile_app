@@ -7,6 +7,7 @@ import {COLORS} from '../../constant/designTokens';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {TouchableOpacity} from 'react-native';
 import CancelIcon from '../../assets/icons/Cases/CancelIcon';
+import {useTranslation} from 'react-i18next';
 
 interface WithdrawCaseModalProps {
   visible: boolean;
@@ -27,6 +28,7 @@ export default function WithdrawCaseModal({
   onChangeMessage,
   onConfirm,
 }: WithdrawCaseModalProps) {
+  const {t} = useTranslation();
   return (
     <Modal
       visible={visible}
@@ -45,7 +47,7 @@ export default function WithdrawCaseModal({
             <CancelIcon />
           </TouchableOpacity>
 
-          <Text style={styles.modalTitle}>Withdraw Case</Text>
+          <Text style={styles.modalTitle}>{t('withdraw_case')}</Text>
 
           <UploadDocumentCard fileName={fileName} onPress={onFilePick} />
 
@@ -59,7 +61,7 @@ export default function WithdrawCaseModal({
           />
 
           <Button
-            title="Confirm"
+            title={t('confirm')}
             buttonStyle={styles.confirmButton}
             titleStyle={styles.confirmText}
             onPress={onConfirm}

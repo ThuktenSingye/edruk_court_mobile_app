@@ -50,6 +50,7 @@ import NotificationScreen from '../../screens/Notification/NotificationScreen';
 import CaseStackNavigator from './CaseStackNavigator';
 import BottomTabBar from './BottomTabBar';
 import {CaseStackParamList} from '../../types/navigation';
+import {useTranslation} from 'react-i18next';
 // ✅ Define TabParamList with nested CaseStackParamList
 export type TabParamList = {
   Home: undefined;
@@ -62,15 +63,32 @@ export type TabParamList = {
 const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator() {
+  const {t} = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={{headerShown: false}}
       tabBar={props => <BottomTabBar {...props} />}>
       {/* Main visible tabs */}
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Case" component={CaseStackNavigator} />
-      <Tab.Screen name="Schedule" component={ScheduleScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{tabBarLabel: t('home')}}
+      />
+      <Tab.Screen
+        name="Case"
+        component={CaseStackNavigator}
+        options={{tabBarLabel: t('case')}}
+      />
+      <Tab.Screen
+        name="Schedule"
+        component={ScheduleScreen}
+        options={{tabBarLabel: t('schedule')}}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{tabBarLabel: t('profile')}}
+      />
 
       {/* Hidden but navigable screen */}
       <Tab.Screen

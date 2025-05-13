@@ -24,6 +24,7 @@ import {useActiveCase} from '../../hooks/useActiveCase.ts';
 import {Case} from '../../types/case.ts';
 import {useQueryClient} from '@tanstack/react-query';
 import {useUpcomingCases} from '../../hooks/useUpcomingCases';
+import {useTranslation} from 'react-i18next';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, 'Home'>,
@@ -36,6 +37,7 @@ export default function HomeScreen() {
   // const user: User | null = useUserStore(state => state.user);
   const {data: activeCases, isLoading, error} = useActiveCase();
   const queryClient = useQueryClient();
+  const {t} = useTranslation();
   const {
     data: upcomingCases,
     isLoading: isLoadingUpcoming,
@@ -81,7 +83,7 @@ export default function HomeScreen() {
     <MainLayout>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Ongoing Case */}
-        <Text style={styles.sectionTitle}>Ongoing Case</Text>
+        <Text style={styles.sectionTitle}>{t('ongoing_case')}</Text>
         {isLoading ? (
           <ActivityIndicator size="large" color={COLORS.primary} />
         ) : error ? (
@@ -125,7 +127,7 @@ export default function HomeScreen() {
                   {caseItem.case_status}
                 </Text>
                 <Button
-                  title="View More"
+                  title={t('view_more')}
                   icon={{
                     name: 'eye',
                     type: 'ionicon',
@@ -138,7 +140,7 @@ export default function HomeScreen() {
                   onPress={() => {
                     navigation.navigate('Case', {
                       screen: 'CaseDetail',
-                      params: {caseId: caseItem.id.toString()},
+                      params: {case: caseItem},
                     });
                   }}
                 />
@@ -150,7 +152,7 @@ export default function HomeScreen() {
         )}
 
         {/* Upcoming Hearing */}
-        <Text style={styles.sectionTitle}>Upcoming Hearing</Text>
+        <Text style={styles.sectionTitle}>{t('upcoming_hearing')}</Text>
         {isLoadingUpcoming ? (
           <ActivityIndicator size="large" color={COLORS.primary} />
         ) : upcomingError ? (
@@ -197,7 +199,7 @@ export default function HomeScreen() {
                   </Text>
                 </View>
                 <Button
-                  title="View More"
+                  title={t('view_more')}
                   icon={{
                     name: 'eye',
                     type: 'ionicon',
@@ -220,10 +222,10 @@ export default function HomeScreen() {
         )}
 
         {/* Quick Links */}
-        <Text style={styles.sectionTitle}>Quick Link</Text>
+        <Text style={styles.sectionTitle}>{t('quick_link')}</Text>
         <View style={styles.quickLinkRow}>
           <QuickLinkButton
-            label="File Case"
+            label={t('file_case')}
             icon="folder-outline"
             onPress={() =>
               navigation.navigate('Case', {
@@ -232,12 +234,12 @@ export default function HomeScreen() {
             }
           />
           <QuickLinkButton
-            label="Schedule"
+            label={t('schedule')}
             icon="calendar-outline"
             onPress={() => navigation.navigate('Schedule')}
           />
           <QuickLinkButton
-            label="Case Progress"
+            label={t('case_progress')}
             icon="timer-outline"
             onPress={() => {
               // You can link to a future CaseProgress screen

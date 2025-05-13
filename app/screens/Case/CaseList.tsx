@@ -13,11 +13,15 @@ import {CaseStackParamList} from '../../types/navigation';
 import MainLayout from '../../components/common/MainLayout';
 import {useCaseList} from '../../hooks/useCaseList';
 import {COLORS} from '../../constant/designTokens';
+import {useTranslation} from 'react-i18next';
+import {FONTS} from '../../constant/designTokens';
+import {Button, Card} from '@rneui/themed';
 
 export default function CaseList() {
   const navigation =
     useNavigation<NativeStackNavigationProp<CaseStackParamList>>();
   const {data: cases, isLoading, error} = useCaseList();
+  const {t} = useTranslation();
 
   if (isLoading) {
     return (
@@ -44,47 +48,70 @@ export default function CaseList() {
 
   return (
     <MainLayout>
-      <Text style={styles.header}>Case List</Text>
-      <FlatList
-        data={cases}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('CaseDetail', {case: item})}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.summary}>{item.summary}</Text>
-            <View style={styles.bottomRow}>
-              <Text style={styles.status}>{item.case_status}</Text>
-              <Text style={styles.link}>View More</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={{paddingBottom: 40}}
-      />
+      <View style={styles.container}>
+        <Text style={styles.heading}>{t('cases')}</Text>
+        <FlatList
+          data={cases}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({item}) => (
+            <Card containerStyle={styles.card}>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.summary}>{item.summary}</Text>
+              <View style={styles.bottomRow}>
+                <Text style={styles.status}>{item.case_status}</Text>
+                <Button
+                  title={t('view_more')}
+                  icon={{
+                    name: 'eye',
+                    type: 'ionicon',
+                    color: 'white',
+                    size: 16,
+                  }}
+                  iconRight
+                  buttonStyle={styles.viewButton}
+                  titleStyle={styles.viewTitle}
+                  onPress={() =>
+                    navigation.navigate('CaseDetail', {case: item})
+                  }
+                />
+              </View>
+            </Card>
+          )}
+          contentContainerStyle={{paddingBottom: 40}}
+        />
+      </View>
     </MainLayout>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    // marginHorizontal: 10,
+    // margin: 10,
+  },
   header: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
     marginLeft: 8,
   },
+  heading: {
+    fontSize: 16,
+    color: COLORS.primary,
+    fontFamily: FONTS.semiBold,
+    marginHorizontal: 12,
+    marginVertical: 10,
+  },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    marginHorizontal: 4,
-    elevation: 2,
+    borderRadius: 16,
+    elevation: 4,
   },
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 4,
   },
   summary: {
     fontSize: 14,
@@ -120,5 +147,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     paddingHorizontal: 20,
+  },
+  viewButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  viewTitle: {
+    fontSize: 13,
+    fontFamily: FONTS.medium,
   },
 });

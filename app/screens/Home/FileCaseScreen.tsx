@@ -14,6 +14,7 @@ import {COLORS, FONTS} from '../../constant/designTokens';
 import {useFileCase} from '../../hooks/useFileCase';
 import {useCourts} from '../../hooks/useCourts';
 import {Picker} from '@react-native-picker/picker';
+import {useTranslation} from 'react-i18next';
 
 // Define the type for the document in the form state
 interface FileDoc {
@@ -65,6 +66,7 @@ export default function FileCaseScreen() {
   const {data, isLoading, error} = useCourts();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState(form.court_id);
+  const {t} = useTranslation();
   // const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
 
   const handleInputChange = (field: string, value: string) => {
@@ -194,7 +196,7 @@ export default function FileCaseScreen() {
   return (
     <MainLayout>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>File New Case</Text>
+        <Text style={styles.heading}>{t('registration')}</Text>
         <Card containerStyle={styles.card}>
           <Text style={styles.sectionTitle}>Case Information</Text>
           <Input
@@ -220,38 +222,38 @@ export default function FileCaseScreen() {
             onChangeText={text => handleInputChange('summary', text)}
             multiline
           />
-          <Text style={styles.sectionTitle}>Defendant Information</Text>
+          <Text style={styles.sectionTitle}>{t('defendant_information')}</Text>
           <Input
-            label="First Name"
+            label={t('first_name')}
             value={form.first_name}
             onChangeText={text => handleInputChange('first_name', text)}
           />
           <Input
-            label="Last Name"
+            label={t('last_name')}
             value={form.last_name}
             onChangeText={text => handleInputChange('last_name', text)}
           />
           <Input
-            label="CID No"
+            label={t('cid')}
             value={form.cid_no}
             onChangeText={text => handleInputChange('cid_no', text)}
             keyboardType="numeric"
           />
           <Input
-            label="Phone Number"
+            label={t('phone_no')}
             value={form.phone_number}
             onChangeText={text => handleInputChange('phone_number', text)}
             keyboardType="numeric"
           />
           <Input
-            label="Email"
+            label={t('email')}
             value={form.email}
             onChangeText={text => handleInputChange('email', text)}
             keyboardType="email-address"
           />
           <Text style={styles.sectionTitle}>Address</Text>
           <Input
-            label="Dzongkhag"
+            label={t('dzongkhag')}
             value={form.dzongkhag}
             onChangeText={text => handleInputChange('dzongkhag', text)}
           />
@@ -270,7 +272,7 @@ export default function FileCaseScreen() {
             value={form.address_type}
             onChangeText={text => handleInputChange('address_type', text)}
           />
-          <Text style={styles.sectionTitle}>Upload Documents</Text>
+          <Text style={styles.sectionTitle}>{t('upload_document')}</Text>
           <Button
             title="Select Documents"
             onPress={handleFilePick}
@@ -289,7 +291,7 @@ export default function FileCaseScreen() {
             </View>
           )}
           <Button
-            title={isLoading ? 'Registering...' : 'REGISTER CASE'}
+            title={isLoading ? 'Registering...' : t('register_case')}
             onPress={handleRegister}
             buttonStyle={styles.submitButton}
             titleStyle={styles.submitTitle}
@@ -322,7 +324,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: FONTS.bold,
     marginBottom: 10,
-    color: COLORS.textPrimary,
+    color: COLORS.primary,
   },
   pickerInput: {
     fontSize: 16,

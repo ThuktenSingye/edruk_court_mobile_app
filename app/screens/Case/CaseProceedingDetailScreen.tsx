@@ -15,6 +15,7 @@ import {pick, types} from '@react-native-documents/picker';
 import {useUploadHearingDocument} from '../../hooks/useUploadHearingDocuments';
 import {useHearingDocuments} from '../../hooks/useGetHearingDocuments';
 import {getToken} from '../../utils/token';
+import {useTranslation} from 'react-i18next';
 
 interface FileDoc {
   uri: string;
@@ -40,6 +41,7 @@ export default function CaseProceedingDetailScreen({route}: any) {
   const navigation = useNavigation();
   const [documents, setDocuments] = useState<FileDoc[]>([]);
   const {mutate: uploadDocument, isPending} = useUploadHearingDocument();
+  const {t} = useTranslation();
 
   const {data: hearingDocuments, refetch} = useHearingDocuments(
     caseId,
@@ -346,7 +348,7 @@ export default function CaseProceedingDetailScreen({route}: any) {
             {(hearingDocuments?.length > 0 || documents.length > 0) && (
               <Card containerStyle={styles.card}>
                 <View style={styles.documentHeader}>
-                  <Text style={styles.uploadHeading}>Documents</Text>
+                  <Text style={styles.uploadHeading}>{t('documents')}</Text>
                   <Button
                     title="Sign All"
                     onPress={handleSignAll}

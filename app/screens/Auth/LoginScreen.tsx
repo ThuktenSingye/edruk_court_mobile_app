@@ -16,7 +16,7 @@ import {useLogin} from '../../hooks/useLogin';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {MainStackParamList} from '../../types/navigation';
-
+import {useTranslation} from 'react-i18next';
 type LoginScreenNavigationProp = NativeStackNavigationProp<
   MainStackParamList,
   'Login'
@@ -28,15 +28,21 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
+  const {t, i18n} = useTranslation();
   const loginMutation = useLogin();
 
   const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert('Validation', 'Please enter both email and password');
+      Alert.alert(t('validation_title'), t('validation_msg'));
       return;
     }
 
     loginMutation.mutate({email, password});
+  };
+
+  const toggleLanguage = () => {
+    const nextLang = i18n.language === 'en' ? 'dz' : 'en';
+    i18n.changeLanguage(nextLang);
   };
 
   return (
@@ -45,6 +51,11 @@ const LoginScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}>
         <View style={styles.content}>
+          <TouchableOpacity onPress={toggleLanguage} style={styles.langToggle}>
+            <Text style={{fontWeight: 'bold', fontSize: 13}}>
+              {i18n.language === 'en' ? 'རྫོང་ཁ' : 'English'}
+            </Text>
+          </TouchableOpacity>
           <View style={styles.logoContainer}>
             <Image
               source={require('../../../assets/images/logo.png')}
@@ -54,10 +65,10 @@ const LoginScreen = () => {
           </View>
 
           {/* Login Form */}
-          <Text style={styles.loginTitle}>Log in</Text>
+          <Text style={styles.loginTitle}>{t('login')}</Text>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Email</Text>
+            <Text style={styles.inputLabel}>{t('email')}</Text>
             <Input
               placeholder="pema@exemple.com"
               value={email}
@@ -69,7 +80,7 @@ const LoginScreen = () => {
               keyboardType="email-address"
             />
 
-            <Text style={styles.inputLabel}>Password</Text>
+            <Text style={styles.inputLabel}>{t('password')}</Text>
             <Input
               placeholder=""
               value={password}
@@ -88,7 +99,7 @@ const LoginScreen = () => {
           </View>
 
           <Button
-            title={loginMutation.isPending ? 'Logging in...' : 'Log in'}
+            title={loginMutation.isPending ? t('logging_in') : t('login')}
             buttonStyle={styles.loginButton}
             containerStyle={styles.loginButtonContainer}
             onPress={handleLogin}
@@ -98,7 +109,7 @@ const LoginScreen = () => {
           {/* Error Message */}
           {loginMutation.isError && (
             <Text style={styles.errorText}>
-              {loginMutation.error?.message || 'Login failed'}
+              {loginMutation.error?.message || t('login_failed')}
             </Text>
           )}
 
@@ -106,7 +117,7 @@ const LoginScreen = () => {
           <View style={styles.signupContainer}>
             <Text style={styles.noAccountText}>No account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-              <Text style={styles.signupText}>Sign up</Text>
+              <Text style={styles.signupText}>{t('signup')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -212,6 +223,16 @@ const styles = StyleSheet.create({
     color: COLORS.error,
     marginTop: 10,
     textAlign: 'center',
+  },
+  // 🆕 Language toggle position
+  langToggle: {
+    position: 'absolute',
+    top: 10,
+    right: 20,
+    zIndex: 10,
+    padding: 5,
+    backgroundColor: '#eee',
+    borderRadius: 8,
   },
 });
 
