@@ -1,7 +1,7 @@
 import {getToken} from '../utils/token';
 import {ActiveCasesResponse, Case} from '../types/case';
-
-const API_BASE_URL = 'http://10.2.35.53:3001/api/v1';
+import API_HOST from '../utils/ip.ts';
+const API_BASE_URL = `${API_HOST}/api/v1`;
 
 export async function fetchActiveCases(): Promise<ActiveCasesResponse> {
   try {

@@ -1,5 +1,5 @@
 import {getToken} from '../utils/token';
-
+import API_HOST from '../utils/ip.ts';
 export const fetchHearingDocuments = async (
   caseId: number,
   hearingId: number,
@@ -10,7 +10,7 @@ export const fetchHearingDocuments = async (
   }
 
   const response = await fetch(
-    `http://10.2.35.53:3001/api/v1/user/cases/${caseId}/hearings/${hearingId}/documents`,
+    `${API_HOST}/api/v1/user/cases/${caseId}/hearings/${hearingId}/documents`,
     {
       method: 'GET',
       headers: {

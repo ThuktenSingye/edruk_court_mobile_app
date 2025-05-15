@@ -1,10 +1,9 @@
 import {getToken} from '../utils/token';
-import {CaseListResponse} from '../types/caselist';
 import API_HOST from '../utils/ip.ts';
 
 const API_BASE_URL = `${API_HOST}/api/v1`;
 
-export async function fetchCases(): Promise<CaseListResponse> {
+export async function fetchNotification(): Promise<any> {
   try {
     const token = await getToken();
 
@@ -13,10 +12,7 @@ export async function fetchCases(): Promise<CaseListResponse> {
       throw new Error('No authentication token found');
     }
 
-    console.log('Fetching cases from:', `${API_BASE_URL}/user/cases`);
-    console.log('Using token:', token.substring(0, 10) + '...');
-
-    const response = await fetch(`${API_BASE_URL}/user/cases`, {
+    const response = await fetch(`${API_BASE_URL}/notifications`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

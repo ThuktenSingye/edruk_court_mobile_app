@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Alert, ImageBackground, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {MainStackParamList} from '../../types/navigation';
@@ -8,6 +8,8 @@ import useUserStore from '../../store/useUserStore';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Avatar} from '@rneui/themed';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import backgroundImage from '../../assets/images/background.png'
+import {useTranslation} from 'react-i18next';
 
 interface Props {
   children: React.ReactNode;
@@ -18,23 +20,41 @@ export default function MainLayout({children}: Props) {
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const logout = useUserStore(state => state.logout);
   const user = useUserStore(state => state.user);
+  const {t} = useTranslation()
 
   const confirmLogout = () => {
-    Alert.alert('Are you sure?', 'You will be logged out.', [
-      {text: 'No', style: 'cancel'},
-      {
-        text: 'Yes',
-        onPress: () => {
-          logout();
+    Alert.alert(
+      t('confirm_logout'), // title as string
+      null, // optional message
+      [ // buttons array
+        {text: t('no'), style: 'cancel'},
+        {
+          text: t('yes'),
+          onPress: () => {
+            logout();
+          },
+          style: 'destructive',
         },
-        style: 'destructive',
-      },
-    ]);
+      ]
+    );
   };
 
   return (
     <SafeAreaProvider>
-      <View style={styles.container}>
+
+        {/* Bottom Right Logo */}
+
+       <View style={styles.container}>
+         <ImageBackground
+           source={backgroundImage}
+           style={styles.container}
+           imageStyle={styles.logoPosition}
+           resizeMode="contain">
+         <Image
+           source={backgroundImage}
+           style={styles.bottomRightLogo}
+           resizeMode="contain"
+         />
         {/* Top Bar */}
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
@@ -46,7 +66,7 @@ export default function MainLayout({children}: Props) {
               containerStyle={styles.avatar}
             />
             <View style={styles.greetingContainer}>
-              <Text style={styles.greeting}>Kuzu Zangpo</Text>
+              <Text style={styles.greeting}>{t('kuzu_zangpo')}</Text>
               <Text style={styles.name}>
                 {user?.profile.first_name} {user?.profile.last_name}
               </Text>
@@ -75,7 +95,9 @@ export default function MainLayout({children}: Props) {
 
         {/* Page Content */}
         <View style={{flex: 1}}>{children}</View>
+         </ImageBackground>
       </View>
+
     </SafeAreaProvider>
   );
 }
@@ -85,6 +107,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     paddingTop: 10,
+  },
+  logoPosition: {
+    position: 'absolute',
+    top: 90,
+    left: -120,
+    width: 240,
+    height: 240,
+    opacity: 0.15,
+  },
+  bottomRightLogo: {
+    position: 'absolute',
+    bottom: -120,
+    right: -80,
+    width: 240,
+    height: 240,
+    opacity: 0.15,
   },
   header: {
     flexDirection: 'row',

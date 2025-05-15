@@ -1,7 +1,8 @@
 import {getToken} from '../utils/token';
 import {UpcomingCasesResponse} from '../types/upcomingcases';
+import API_HOST from '../utils/ip.ts';
 
-const API_BASE_URL = 'http://10.2.35.53:3001/api/v1';
+const API_BASE_URL = `${API_HOST}/api/v1`;
 
 export async function fetchUpcomingCases(): Promise<UpcomingCasesResponse> {
   try {

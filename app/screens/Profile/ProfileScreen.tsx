@@ -3,7 +3,6 @@ import {
   ScrollView,
   StyleSheet,
   View,
-  Image,
   Text as RNText,
   TouchableOpacity,
 } from 'react-native';
@@ -17,6 +16,8 @@ import useUserStore from '../../store/useUserStore';
 import {User} from '../../types/user';
 import {useTranslation} from 'react-i18next';
 import {SIZES} from '../../constant/designTokens';
+import {ImageBackground, Image} from 'react-native';
+import backgroundImage from '../../assets/images/background.png'
 
 const AddressIcon = () => (
   <View style={styles.iconBox}>
@@ -225,6 +226,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
+  logoPosition: {
+    position: 'absolute',
+    top: 90,
+    left: -120,
+    width: 240,
+    height: 240,
+    opacity: 0.15,
+  },
+  bottomRightLogo: {
+    position: 'absolute',
+    bottom: -120,
+    right: -80,
+    width: 240,
+    height: 240,
+    opacity: 0.15,
+  },
   headerCurve: {
     backgroundColor: COLORS.primary,
     height: 140,
@@ -272,6 +289,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   profileContent: {
+    flex: 1,
     padding: 24,
     paddingTop: 32,
   },

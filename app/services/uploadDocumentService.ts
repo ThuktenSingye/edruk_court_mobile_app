@@ -1,4 +1,5 @@
 import {getToken} from '../utils/token';
+import API_HOST from '../utils/ip.ts';
 
 export const uploadHearingDocument = async (
   caseId: number,
@@ -22,7 +23,7 @@ export const uploadHearingDocument = async (
       throw new Error('No token found. Please log in again.');
     }
 
-    const url = `http://10.2.35.53:3001/api/v1/user/cases/${caseId}/hearings/${hearingId}/documents`;
+    const url = `${API_HOST}/api/v1/user/cases/${caseId}/hearings/${hearingId}/documents`;
 
     const response = await fetch(url, {
       method: 'POST',

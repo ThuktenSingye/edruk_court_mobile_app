@@ -1,7 +1,7 @@
 import {FileCasePayload} from '../types/filecase';
 import {getToken} from '../utils/token';
-
-const API_URL = 'http://10.2.35.53:3001/api/v1/user/cases';
+import API_HOST from '../utils/ip.ts';
+const API_URL = `${API_HOST}/api/v1/user/cases`;
 
 export async function submitFileCase(payload: FileCasePayload) {
   const token = await getToken();
@@ -13,9 +13,9 @@ export async function submitFileCase(payload: FileCasePayload) {
   formData.append('case[title]', payload.case.title);
   formData.append('case[court_id]', String(payload.case.court_id));
   formData.append('case[summary]', payload.case.summary);
-  formData.append('case[registration_number]', 'REG-2024-900');
-  formData.append('case[judgement_number]', 'JUD-2024-456');
-  formData.append('case[case_number]', 'CASE-2024-074');
+  formData.append('case[registration_number]', 'REG-2024-098');
+  formData.append('case[judgement_number]', 'JUD-2024-0943');
+  formData.append('case[case_number]', 'CASE-2024-345');
 
   // Documents - handle all documents
   payload.case.case_documents_attributes.forEach((doc, index) => {

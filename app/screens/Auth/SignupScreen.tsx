@@ -16,6 +16,10 @@ import {COLORS, SIZES} from '../../constant/designTokens';
 import {useNavigation} from '@react-navigation/native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {useTranslation} from 'react-i18next';
+import {useSignUp} from '../../hooks/useSignup.ts';
+import buildSignupFormData from '../../types/signupParams';
+
+// import buildSignupFormData from '../../types/signupParams.ts';
 
 const SignupScreen = () => {
   const [email, setEmail] = useState('');
@@ -31,6 +35,7 @@ const SignupScreen = () => {
 
   const navigation = useNavigation();
   const {t} = useTranslation();
+  const {mutate: signUp, isLoading} = useSignUp();
 
   const handleChoosePhoto = () => {
     launchImageLibrary(
@@ -48,6 +53,7 @@ const SignupScreen = () => {
       },
     );
   };
+
 
   const handleSignUp = () => {
     if (
@@ -69,8 +75,27 @@ const SignupScreen = () => {
       return;
     }
 
-    console.log('Signing up...');
-    console.log('Profile image URI:', profileImage);
+    const formData = buildSignupFormData({
+      email,
+      password,
+      passwordConfirmation: confirmPassword,
+      firstName,
+      lastName,
+      cidNo,
+      phoneNumber,
+      gender,
+      profileImageUri: profileImage,
+    });
+
+    signUp(formData, {
+      onSuccess: user => {
+        Alert.alert('Success', 'Account created successfully');
+        navigation.goBack(); // or navigate to login
+      },
+      onError: error => {
+        Alert.alert('Error', error.message);
+      },
+    });
   };
 
   return (

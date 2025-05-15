@@ -16,7 +16,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RouteProp} from '@react-navigation/native';
 
 import MainLayout from '../../components/common/MainLayout';
-import {COLORS, FONTS} from '../../constant/designTokens';
+import {COLORS, FONTS, SIZES} from '../../constant/designTokens';
 import WithdrawCaseModal from './WithdrawCaseModal';
 import {CaseStackParamList} from '../../types/navigation';
 import {Document} from '../../types/document';
@@ -37,7 +37,7 @@ export default function CaseScreen() {
 
   const caseSections = [
     {
-      title: 'Case',
+      title: t('case'),
       data: [
         {label: 'Case Title', value: caseItem?.title || 'Loading...'},
         {
@@ -57,7 +57,7 @@ export default function CaseScreen() {
       ],
     },
     {
-      title: 'Case Status',
+      title: t('case_status'),
       data: [
         {label: 'Appeal', value: 'No'},
         {label: 'Enforcement', value: 'No'},
@@ -68,14 +68,14 @@ export default function CaseScreen() {
       ],
     },
     {
-      title: 'Dealing Official',
+      title: t('dealing_official'),
       data: [
         {
           label: 'Judge',
           value: caseItem?.judge || 'No Assigned Judge',
         },
-        {label: 'Dealing Clerk', value: caseItem?.clerk || 'No Assigned Clerk'},
-        {label: 'Bench No', value: caseItem?.court || 'No Assigned Court'},
+        {label: 'Clerk', value: caseItem?.clerk || 'No Assigned Clerk'},
+        {label: 'Court', value: caseItem?.court || 'No Assigned Court'},
       ],
     },
   ];
@@ -220,7 +220,7 @@ export default function CaseScreen() {
 
         {/* Documents Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('document')}</Text>
+          <Text style={styles.sectionTitle}>{t('documents')}</Text>
           {caseItem?.documents && caseItem.documents.length > 0 ? (
             <Card containerStyle={styles.card}>
               {caseItem.documents.map(item => (
@@ -308,9 +308,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    fontSize: SIZES.medium,
+    // fontWeight: 'bold',
+    color: COLORS.primary,
     marginBottom: -5,
     marginLeft: 4,
   },

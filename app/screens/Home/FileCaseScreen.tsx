@@ -15,6 +15,9 @@ import {useFileCase} from '../../hooks/useFileCase';
 import {useCourts} from '../../hooks/useCourts';
 import {Picker} from '@react-native-picker/picker';
 import {useTranslation} from 'react-i18next';
+import {useNavigation} from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons'; //
+import {TouchableOpacity} from 'react-native';
 
 // Define the type for the document in the form state
 interface FileDoc {
@@ -58,14 +61,15 @@ export default function FileCaseScreen() {
     address_type: '',
     documents: [],
     documentNames: [],
-    registration_number: 'REG-2024-545',
-    judgement_number: 'JUD-2024-080',
+    registration_number: 'REG-2024-223',
+    judgement_number: 'JUD-2024-330',
   });
 
   const mutation = useFileCase();
   const {data, isLoading, error} = useCourts();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState(form.court_id);
+  const navigation = useNavigation();
   const {t} = useTranslation();
   // const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
 
@@ -195,6 +199,14 @@ export default function FileCaseScreen() {
 
   return (
     <MainLayout>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}>
+          <Icon name="arrow-back" size={24} color={COLORS.primary} />
+        </TouchableOpacity>
+        {/*<Text style={styles.heading}>{t('registration')}</Text>*/}
+      </View>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.heading}>{t('registration')}</Text>
         <Card containerStyle={styles.card}>
@@ -306,6 +318,16 @@ export default function FileCaseScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 100,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    // backgroundColor: '#fff',
+    // elevation: 4,
+  },
+  backButton: {
+    marginRight: 10,
   },
   heading: {
     fontSize: 16,

@@ -211,7 +211,7 @@ export default function HomeScreen() {
                   titleStyle={styles.viewTitle}
                   onPress={() => {
                     // Navigate to hearing details
-                    navigation.navigate('CaseDetails', {caseId: hearing.id});
+                    navigation.navigate('Schedule');
                   }}
                 />
               </View>
